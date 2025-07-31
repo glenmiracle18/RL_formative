@@ -283,9 +283,8 @@ If you use this project in your research, please cite:
 ```bibtex
 @misc{genetic_mutation_rl,
   title={Genetic Mutation Environment Reinforcement Learning},
-  author={[Your Name]},
+  author={[Bonyu Miracle Glen]},
   year={2024},
-  howpublished={\url{[Repository URL]}}
 }
 ```
 
