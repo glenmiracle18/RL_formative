@@ -6,7 +6,26 @@
 
 A comprehensive reinforcement learning project that optimizes agent behavior in a simulated genetic mutation testing environment. The agent must efficiently explore a spatial grid representing mutations with varying quality scores while managing a limited budget for testing.
 
+## Demo GIF
+
+Below is a demonstration of a random agent interacting with the environment:
+
+![Demo GIF](/SB3/models/random_agent_demo.gif)
 ## 🎯 Project Overview
+
+## Visualization Elements
+
+The demo showcases the Enhanced Genetic Mutation Environment with the following visual components:
+
+### 🧬 **Grid Environment**
+- **8x8 Grid**: Each cell represents a potential genetic mutation site
+- **Mutation Values**: Displayed as numbers (0.00-1.00) in each cell
+- **Color Coding**:
+  - 🟢 **Green**: Low-value mutations (< 0.5)
+  - 🟡 **Yellow**: Medium-value mutations (0.5-0.8)
+  - 🔴 **Red**: High-value mutations (> 0.8)
+- **Transparency**: Cell opacity reflects mutation strength
+
 
 This project addresses the challenge of **balancing exploration and exploitation** in a constrained environment where:
 - An agent moves on a 5×5 grid of genetic mutations
