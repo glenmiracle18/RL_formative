@@ -8,17 +8,20 @@ without any training or model involved - pure visualization demo.
 import sys
 import os
 import time
+
+# Add the environment path
+sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
+
+from environments.enhanced_genetic_env import EnhancedGeneticMutationEnv
 import pygame
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
-# Add the environment path
-sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
-from environments.enhanced_genetic_env import EnhancedGeneticMutationEnv
-
 def create_demo_gif():
     """Create a GIF showing the agent taking random actions"""
     print("🧬 Starting Enhanced Genetic Mutation Environment Demo...")
+    print("📺 Watch the pygame window for real-time action!")
+    print("⏸️  Press SPACE to pause/unpause, ESC or Q to quit early")
     
     env = EnhancedGeneticMutationEnv(render_mode='human')
     obs, info = env.reset()
@@ -27,11 +30,30 @@ def create_demo_gif():
     step_count = 0
     episode_count = 1
     total_reward = 0
+    paused = False
     
     print(f"📊 Episode {episode_count} started")
     
     # Run the simulation
     for i in range(200):  # Capture 200 frames
+        # Handle pygame events for real-time interaction
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                print("\n⏹️ User closed window")
+                break
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    paused = not paused
+                    print(f"\n{'⏸️ Paused' if paused else '▶️ Resumed'}")
+                elif event.key == pygame.K_ESCAPE or event.key == pygame.K_q:
+                    print("\n⏹️ User quit early")
+                    break
+        
+        # Handle pause
+        if paused:
+            time.sleep(0.1)
+            continue
+        
         # Take random action
         action = env.action_space.sample()
         action_names = ["Test", "Up", "Down", "Left", "Right"]
@@ -49,6 +71,9 @@ def create_demo_gif():
                   f"Mutation={current_mutation:.3f}, "
                   f"Reward={reward:.1f}, "
                   f"Budget={env.budget}")
+        
+        # Ensure the display is updated
+        pygame.display.flip()
         
         # Capture frame for GIF
         if env.window is not None:
@@ -69,8 +94,8 @@ def create_demo_gif():
             else:
                 break
         
-        # Small delay for better visualization
-        time.sleep(0.05)
+        # Longer delay for better visualization
+        time.sleep(0.15)
     
     env.close()
     print(f"✅ Simulation completed. Captured {len(frames)} frames")
@@ -106,16 +131,50 @@ def create_demo_gif():
 def create_static_demo():
     """Create a static demonstration without GIF"""
     print("🧬 Running Static Demo (No GIF)...")
+    print("📺 Watch the pygame window for real-time action!")
+    print("⏸️  Press SPACE to pause/unpause, ESC or Q to quit, F for faster, S for slower")
     
     env = EnhancedGeneticMutationEnv(render_mode='human')
     obs, info = env.reset()
     
     step_count = 0
     total_reward = 0
+    paused = False
+    delay = 0.2  # Default delay
+    running = True
     
     try:
-        # Run for 100 steps
-        for i in range(100):
+        # Run indefinitely until user quits
+        while running:
+            # Handle pygame events for real-time interaction
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    print("\n⏹️ User closed window")
+                    running = False
+                    break
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        paused = not paused
+                        print(f"\n{'⏸️ Paused' if paused else '▶️ Resumed'}")
+                    elif event.key == pygame.K_ESCAPE or event.key == pygame.K_q:
+                        print("\n⏹️ User quit")
+                        running = False
+                        break
+                    elif event.key == pygame.K_f:
+                        delay = max(0.05, delay - 0.05)
+                        print(f"\n⏩ Speed increased (delay: {delay:.2f}s)")
+                    elif event.key == pygame.K_s:
+                        delay = min(1.0, delay + 0.05)
+                        print(f"\n⏪ Speed decreased (delay: {delay:.2f}s)")
+            
+            if not running:
+                break
+                
+            # Handle pause
+            if paused:
+                time.sleep(0.1)
+                continue
+            
             action = env.action_space.sample()
             action_names = ["Test", "Up", "Down", "Left", "Right"]
             
@@ -123,7 +182,8 @@ def create_static_demo():
             total_reward += reward
             step_count += 1
             
-            if i % 20 == 0:
+            # Print action info every 10 steps
+            if step_count % 10 == 0:
                 current_pos = env.agent_pos
                 current_mutation = env.mutations[current_pos[0], current_pos[1]]
                 print(f"  Step {step_count}: Action={action_names[action]}, "
@@ -133,16 +193,16 @@ def create_static_demo():
                       f"Budget={env.budget}")
             
             if terminated or truncated:
-                print(f"  Episode ended: Total Reward = {total_reward:.2f}")
+                print(f"  📈 Episode ended: Total Reward = {total_reward:.2f}, Steps = {step_count}")
+                print(f"  🔄 Starting new episode...")
                 obs, info = env.reset()
                 total_reward = 0
+                step_count = 0
             
-            # Handle pygame events to prevent freezing
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    break
+            # Ensure display is updated
+            pygame.display.flip()
             
-            time.sleep(0.1)  # Slow down for better observation
+            time.sleep(delay)  # Adjustable delay
             
     except KeyboardInterrupt:
         print("\n⏹️ Demo interrupted by user")
